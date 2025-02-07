@@ -27,6 +27,7 @@ struct FilterView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .accessibilityIdentifier("status-picker")
                 }
                 
                 Section("Species") {
@@ -36,16 +37,19 @@ struct FilterView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .accessibilityIdentifier("species-picker")
                 }
                 
                 Section("Type") {
                     TextField("Type", text: $filters.type)
+                        .accessibilityIdentifier("type-field")
                 }
                 
                 Section {
                     Button("Reset Filters") {
                         filters = CharacterFilters()
                     }
+                    .accessibilityIdentifier("reset-filters-button")
                 }
             }
             .navigationTitle("Filters")
@@ -55,23 +59,19 @@ struct FilterView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("cancel-button")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Apply") {
                         onApply(filters)
                         dismiss()
                     }
+                    .accessibilityIdentifier("apply-filters-button")
                 }
             }
         }
+        .accessibilityIdentifier("filters-view")
     }
-}
-
-enum CharacterStatus: String, CaseIterable {
-    case `default` = ""
-    case alive = "Alive"
-    case dead = "Dead"
-    case unknown = "Unknown"
 }
 
 struct CharacterFilters {
