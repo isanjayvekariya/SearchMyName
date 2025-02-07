@@ -22,6 +22,7 @@ struct CharacterCardView: View {
                 }
                 .frame(width: 80, height: 80)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityIdentifier("character-cell-image-\(character.id)")
             }
             
             VStack(alignment: .leading, spacing: 4) {

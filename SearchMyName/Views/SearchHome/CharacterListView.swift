@@ -14,9 +14,11 @@ struct CharacterListView: View {
         ForEach(characters) { character in
             CharacterCardView(character: character)
                 .padding(.horizontal)
+                .accessibilityIdentifier("character-cell-\(character.id)")
             Divider()
                 .padding(.horizontal)
         }
+        .accessibilityIdentifier("character-list")
     }
 }
 
