@@ -11,7 +11,7 @@ import SwiftUI
 struct SearchMyNameApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CharacterSearchHomeView()
         }
     }
 }

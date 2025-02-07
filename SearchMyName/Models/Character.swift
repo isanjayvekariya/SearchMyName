@@ -5,7 +5,8 @@
 //  Created by Sanjay Vekariya on 2/6/25.
 //
 
-// MARK: - Models
+import Foundation
+
 struct Character: Codable, Identifiable {
     let id: Int
     let name: String
@@ -23,4 +24,18 @@ struct Origin: Codable {
 
 struct CharacterResponse: Codable {
     let results: [Character]
+}
+
+// MARK: - Date Formatter
+extension Character {
+    var formattedCreatedDate: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        
+        guard let date = dateFormatter.date(from: created) else { return created }
+        
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
+        return dateFormatter.string(from: date)
+    }
 }
