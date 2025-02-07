@@ -11,18 +11,20 @@ protocol HTTPClient {
     func fetch(url: URL) async throws -> Data
 }
 
-enum NetworkError: Error {
-    case invalidURL
-    case noData
-    case decodingError
-    case httpError(Int)
-    case unknown(Error)
+protocol URLSessionProtocol {
+    func data(from url: URL) async throws -> (Data, URLResponse)
+}
+
+extension URLSession: URLSessionProtocol {
+    func data(from url: URL) async throws -> (Data, URLResponse) {
+        try await data(from: url, delegate: nil)
+    }
 }
 
 class URLSessionHTTPClient: HTTPClient {
-    private let session: URLSession
+    private let session: URLSessionProtocol
     
-    init(session: URLSession = .shared) {
+    init(session: URLSessionProtocol = URLSession.shared) {
         self.session = session
     }
     
@@ -38,5 +40,17 @@ class URLSessionHTTPClient: HTTPClient {
         }
         
         return data
+    }
+}
+
+enum NetworkError: Error, Equatable {
+    case invalidURL
+    case noData
+    case decodingError
+    case httpError(Int)
+    case unknown(Error)
+    
+    static func == (lhs: NetworkError, rhs: NetworkError) -> Bool {
+        lhs.localizedDescription == rhs.localizedDescription
     }
 }
