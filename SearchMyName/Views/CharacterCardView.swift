@@ -12,7 +12,7 @@ struct CharacterCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            NavigationLink(destination: Text("Details")) {
+            NavigationLink(destination: CharacterDetailView(character: character)) {
                 AsyncImage(url: URL(string: character.image)) { image in
                     image
                         .resizable()
