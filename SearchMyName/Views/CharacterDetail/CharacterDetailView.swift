@@ -29,6 +29,7 @@ struct CharacterDetailView: View {
                     ProgressView()
                 }
                 .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("detail-character-image")
                 
                 VStack(alignment: .leading, spacing: 12) {
                     detailRow(title: "Species", value: character.species)
@@ -46,6 +47,7 @@ struct CharacterDetailView: View {
         }
         .navigationTitle(character.name)
         .navigationBarTitleDisplayMode(.large)
+        .accessibilityIdentifier("character-detail-view")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {

@@ -26,6 +26,7 @@ struct SearchBarView: View {
                         onSearchTextChanged()
                     }
                     .autocorrectionDisabled()
+                    .accessibilityIdentifier("search-field")
                 
                 Button(action: {
                     isFilterSheetPresented = true
@@ -40,10 +41,12 @@ struct SearchBarView: View {
                                         .fill(.red)
                                         .frame(width: 8, height: 8)
                                         .offset(x: 10, y: -10)
+                                        .accessibilityIdentifier("FilterIndicator")
                                 }
                             }
                         )
                 }
+                .accessibilityIdentifier("filter-button")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
