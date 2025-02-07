@@ -8,7 +8,7 @@
 import XCTest
 @testable import SearchMyName
 
-class URLSessionHTTPClientTests: XCTestCase {
+final class URLSessionHTTPClientTests: XCTestCase {
     var sut: URLSessionHTTPClient!
     var session: MockURLSession!
     

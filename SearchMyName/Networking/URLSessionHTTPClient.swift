@@ -21,7 +21,7 @@ extension URLSession: URLSessionProtocol {
     }
 }
 
-class URLSessionHTTPClient: HTTPClient {
+final class URLSessionHTTPClient: HTTPClient {
     private let session: URLSessionProtocol
     
     init(session: URLSessionProtocol = URLSession.shared) {
