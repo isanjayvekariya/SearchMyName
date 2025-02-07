@@ -8,15 +8,14 @@
 import Foundation
 @testable import SearchMyName
 
-final class MockHTTPClient: HTTPClient {
-    var result: Result<Data, Error>?
-    var capturedURL: URL?
+final class MockHTTPClient: URLSessionHTTPClient {
+    var mockData: Data?
+    var mockError: Error?
     
-    func fetch(url: URL) async throws -> Data {
-        capturedURL = url
-        guard let result = result else {
-            throw NetworkError.noData
+    override func fetch(url: URL) async throws -> Data {
+        if let error = mockError {
+            throw error
         }
-        return try result.get()
+        return mockData ?? Data()
     }
 }

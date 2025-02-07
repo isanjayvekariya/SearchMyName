@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CharacterSearchHomeView: View {
     @StateObject private var viewModel = CharacterViewModel()
+    @State private var isFilterSheetPresented = false
     
     var body: some View {
         NavigationStack {
@@ -16,21 +17,27 @@ struct CharacterSearchHomeView: View {
                 LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                     Section(header: SearchBarView(
                         searchText: $viewModel.searchText,
-                        onSearchTextChanged: viewModel.searchCharacters
+                        isFilterSheetPresented: $isFilterSheetPresented,
+                        onSearchTextChanged: viewModel.searchCharacters,
+                        currentFilters: viewModel.filters
                     )) {
-                        Group {
-                            if viewModel.isLoading {
-                                LoadingView()
-                            } else if let errorMessage = viewModel.errorMessage {
-                                ErrorView(message: errorMessage)
-                            } else {
-                                CharacterListView(characters: viewModel.characters)
-                            }
+                        if viewModel.isLoading {
+                            LoadingView()
+                        } else if let errorMessage = viewModel.errorMessage {
+                            ErrorView(message: errorMessage)
+                        } else {
+                            CharacterListView(characters: viewModel.characters)
                         }
                     }
                 }
             }
             .navigationTitle("Search My Name")
+            .sheet(isPresented: $isFilterSheetPresented) {
+                FilterView(
+                    currentFilters: viewModel.filters,
+                    onApply: viewModel.applyFilters
+                )
+            }
         }
     }
 }

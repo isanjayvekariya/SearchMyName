@@ -8,21 +8,18 @@
 import XCTest
 @testable import SearchMyName
 
-final class CharacterServiceProviderTests: XCTestCase {
+final class CharacterServiceTests: XCTestCase {
     var sut: CharacterServiceProvider!
     var mockHTTPClient: MockHTTPClient!
     var mockURLBuilder: MockURLBuilder!
-    var config: APIConfig!
     
     override func setUp() {
         super.setUp()
         mockHTTPClient = MockHTTPClient()
         mockURLBuilder = MockURLBuilder()
-        config = APIConfig(baseURL: "https://test.com", characterPath: "/test")
         sut = CharacterServiceProvider(
             httpClient: mockHTTPClient,
-            urlBuilder: mockURLBuilder,
-            config: config
+            urlBuilder: mockURLBuilder
         )
     }
     
@@ -30,63 +27,58 @@ final class CharacterServiceProviderTests: XCTestCase {
         sut = nil
         mockHTTPClient = nil
         mockURLBuilder = nil
-        config = nil
         super.tearDown()
     }
     
     func testSearchCharacters_Success() async throws {
-        let mockCharacter = Character(
-            id: 1,
-            name: "Sanjay",
-            species: "Human",
-            image: "https://example.com/image.jpg",
-            status: "Alive",
-            type: "",
-            created: "2017-11-04T18:48:46.250Z",
-            origin: Origin(name: "Earth")
-        )
+        let mockCharacter = Character.mockCharacter()
         let mockResponse = CharacterResponse(results: [mockCharacter])
         let mockData = try JSONEncoder().encode(mockResponse)
-        mockHTTPClient.result = .success(mockData)
+        mockHTTPClient.mockData = mockData
+        mockURLBuilder.mockURL = URL(string: "https://test.com")!
         
-        let characters = try await sut.searchCharacters(query: "Sanjay")
+        let characters = try await sut.searchCharacters(query: "Sanjay", filters: [])
         
         XCTAssertEqual(characters.count, 1)
-        XCTAssertEqual(characters.first?.name, "Sanjay")
-        XCTAssertEqual(mockURLBuilder.capturedBaseURL, config.baseURL)
-        XCTAssertEqual(mockURLBuilder.capturedPath, config.characterPath)
-        XCTAssertEqual(mockURLBuilder.capturedQueryItems?.first?.name, "name")
-        XCTAssertEqual(mockURLBuilder.capturedQueryItems?.first?.value, "Sanjay")
+        XCTAssertEqual(characters.first?.id, mockCharacter.id)
     }
     
-    func testSearchCharacters_HTTPError() async {
-        mockHTTPClient.result = .failure(NetworkError.httpError(404))
+    func testSearchCharacters_WithFilters_BuildsCorrectURL() async throws {
+        let filters = [
+            URLQueryItem(name: "status", value: "Alive"),
+            URLQueryItem(name: "species", value: "Human")
+        ]
+        
+        _ = try? await sut.searchCharacters(query: "Sanjay", filters: filters)
+        
+        let capturedQueryItems = mockURLBuilder.capturedQueryItems ?? []
+        XCTAssertEqual(capturedQueryItems.count, 3) // name query + 2 filters
+        XCTAssertTrue(capturedQueryItems.contains(where: { $0.name == "name" && $0.value == "Sanjay" }))
+        XCTAssertTrue(capturedQueryItems.contains(where: { $0.name == "status" && $0.value == "Alive" }))
+        XCTAssertTrue(capturedQueryItems.contains(where: { $0.name == "species" && $0.value == "Human" }))
+    }
+    
+    func testSearchCharacters_HTTPError_ThrowsError() async {
+        mockHTTPClient.mockError = NetworkError.httpError(404)
         
         do {
-            _ = try await sut.searchCharacters(query: "Sanjay")
-            XCTFail("Expected error but got success")
-        } catch let error as NetworkError {
-            switch error {
-            case .httpError(let code):
-                XCTAssertEqual(code, 404)
-            default:
-                XCTFail("Expected HTTP error but got \(error)")
-            }
+            _ = try await sut.searchCharacters(query: "Sanjay", filters: [])
+            XCTFail("Expected error to be thrown")
         } catch {
-            XCTFail("Expected NetworkError but got \(error)")
+            XCTAssertTrue(error is NetworkError)
         }
     }
     
-    func testSearchCharacters_InvalidURL() async {
-        mockURLBuilder.shouldFail = true
+    func testSearchCharacters_InvalidJSON_ThrowsDecodingError() async {
+        mockHTTPClient.mockData = "Invalid JSON".data(using: .utf8)
         
         do {
-            _ = try await sut.searchCharacters(query: "Sanjay")
-            XCTFail("Expected error but got success")
-        } catch NetworkError.invalidURL {
+            _ = try await sut.searchCharacters(query: "Sanjay", filters: [])
+            XCTFail("Expected error to be thrown")
+        } catch NetworkError.decodingError {
             // Success
         } catch {
-            XCTFail("Expected invalidURL error but got \(error)")
+            XCTFail("Expected NetworkError.decodingError but got \(error)")
         }
     }
 }

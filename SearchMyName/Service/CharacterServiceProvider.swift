@@ -8,29 +8,27 @@
 import Foundation
 
 protocol CharacterServiceProviding {
-    func searchCharacters(query: String) async throws -> [Character]
+    func searchCharacters(query: String, filters: [URLQueryItem]) async throws -> [Character]
 }
 
 final class CharacterServiceProvider: CharacterServiceProviding {
-    private let httpClient: HTTPClient
+    private let httpClient: URLSessionHTTPClient
     private let urlBuilder: URLBuilderProtocol
     private let config: APIConfig
-    private let jsonDecoder: JSONDecoder
     
     init(
-        httpClient: HTTPClient = URLSessionHTTPClient(),
+        httpClient: URLSessionHTTPClient = URLSessionHTTPClient(),
         urlBuilder: URLBuilderProtocol = URLBuilder(),
-        config: APIConfig = .production,
-        jsonDecoder: JSONDecoder = JSONDecoder()
+        config: APIConfig = .production
     ) {
         self.httpClient = httpClient
         self.urlBuilder = urlBuilder
         self.config = config
-        self.jsonDecoder = jsonDecoder
     }
     
-    func searchCharacters(query: String) async throws -> [Character] {
-        let queryItems = [URLQueryItem(name: "name", value: query)]
+    func searchCharacters(query: String, filters: [URLQueryItem] = []) async throws -> [Character] {
+        var queryItems = [URLQueryItem(name: "name", value: query)]
+        queryItems.append(contentsOf: filters)
         
         let url = try urlBuilder.buildURL(
             baseURL: config.baseURL,
@@ -38,16 +36,15 @@ final class CharacterServiceProvider: CharacterServiceProviding {
             queryItems: queryItems
         )
         
+        let data = try await httpClient.fetch(url: url)
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
         do {
-            let data = try await httpClient.fetch(url: url)
-            let response = try jsonDecoder.decode(CharacterResponse.self, from: data)
+            let response = try decoder.decode(CharacterResponse.self, from: data)
             return response.results
-        } catch let error as NetworkError {
-            throw error
-        } catch _ as DecodingError {
-            throw NetworkError.decodingError
         } catch {
-            throw NetworkError.unknown(error)
+            throw NetworkError.decodingError
         }
     }
 }

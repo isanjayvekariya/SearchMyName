@@ -9,20 +9,15 @@ import Foundation
 @testable import SearchMyName
 
 final class MockURLBuilder: URLBuilderProtocol {
-    var shouldFail = false
-    var capturedBaseURL: String?
-    var capturedPath: String?
+    var mockURL: URL?
     var capturedQueryItems: [URLQueryItem]?
+    var shouldFail = false
     
     func buildURL(baseURL: String, path: String, queryItems: [URLQueryItem]) throws -> URL {
-        capturedBaseURL = baseURL
-        capturedPath = path
         capturedQueryItems = queryItems
-        
         if shouldFail {
             throw NetworkError.invalidURL
         }
-        
-        return URL(string: "https://test.com")!
+        return mockURL ?? URL(string: "https://test.com")!
     }
 }

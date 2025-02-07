@@ -13,19 +13,36 @@ class CharacterViewModel: ObservableObject {
     @Published var searchText = ""
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var filters = CharacterFilters()
     
     private var searchTask: Task<Void, Never>?
-    private let characterServiceProvider: CharacterServiceProviding
+    private let characterService: CharacterServiceProviding
     
-    init(characterServiceProvider: CharacterServiceProviding = CharacterServiceProvider()) {
-        self.characterServiceProvider = characterServiceProvider
+    init(characterService: CharacterServiceProviding = CharacterServiceProvider()) {
+        self.characterService = characterService
+    }
+    
+    var filterQueryItems: [URLQueryItem] {
+        var items: [URLQueryItem] = []
+        
+        if !filters.status.isEmpty {
+            items.append(URLQueryItem(name: "status", value: filters.status))
+        }
+        if !filters.species.isEmpty {
+            items.append(URLQueryItem(name: "species", value: filters.species))
+        }
+        if !filters.type.isEmpty {
+            items.append(URLQueryItem(name: "type", value: filters.type))
+        }
+        
+        return items
     }
     
     func searchCharacters() {
         searchTask?.cancel()
         
         searchTask = Task {
-            // Wait for debounce
+            // wait for debounce
             try? await Task.sleep(nanoseconds: 500_000_000)
             
             guard !Task.isCancelled else { return }
@@ -40,17 +57,28 @@ class CharacterViewModel: ObservableObject {
             errorMessage = nil
             
             do {
-                characters = try await characterServiceProvider.searchCharacters(query: searchText)
+                characters = try await characterService.searchCharacters(
+                    query: searchText,
+                    filters: filterQueryItems
+                )
+                errorMessage = characters.isEmpty ? "No characters found" : nil
             } catch NetworkError.invalidURL {
                 errorMessage = "Invalid search query"
             } catch NetworkError.decodingError {
                 errorMessage = "Failed to process data"
-            } catch {
+            } catch NetworkError.httpError {
                 errorMessage = "No characters found"
+            } catch {
+                errorMessage = "Something went wrong"
                 characters = []
             }
             
             isLoading = false
         }
+    }
+    
+    func applyFilters(_ newFilters: CharacterFilters) {
+        filters = newFilters
+        searchCharacters()
     }
 }

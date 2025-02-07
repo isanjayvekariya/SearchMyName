@@ -9,22 +9,44 @@ import SwiftUI
 
 struct SearchBarView: View {
     @Binding var searchText: String
-    var onSearchTextChanged: () -> Void
+    @Binding var isFilterSheetPresented: Bool
+    let onSearchTextChanged: () -> Void
+    let currentFilters: CharacterFilters
     
     var body: some View {
         VStack(spacing: 0) {
-            TextField("Search characters...", text: $searchText)
-                .font(.system(size: 18))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color(UIColor.secondarySystemBackground))
-                .cornerRadius(12)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .onChange(of: searchText) {
-                    onSearchTextChanged()
+            HStack(spacing: 12) {
+                TextField("Search characters...", text: $searchText)
+                    .font(.system(size: 18))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(12)
+                    .onChange(of: searchText) {
+                        onSearchTextChanged()
+                    }
+                    .autocorrectionDisabled()
+                
+                Button(action: {
+                    isFilterSheetPresented = true
+                }) {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                        .font(.title2)
+                        .foregroundColor(.accentColor)
+                        .overlay(
+                            Group {
+                                if currentFilters.hasActiveFilters {
+                                    Circle()
+                                        .fill(.red)
+                                        .frame(width: 8, height: 8)
+                                        .offset(x: 10, y: -10)
+                                }
+                            }
+                        )
                 }
-                .autocorrectionDisabled()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             
             Divider()
         }
@@ -34,10 +56,15 @@ struct SearchBarView: View {
 
 #Preview {
     struct PreviewWrapper: View {
-        @State private var text = "Sanjay"
-        
         var body: some View {
-            SearchBarView(searchText: $text) {}
+            VStack {
+                SearchBarView(
+                    searchText: .constant("Sanjay"),
+                    isFilterSheetPresented: .constant(false),
+                    onSearchTextChanged: {},
+                    currentFilters: CharacterFilters(status: "Alive", species: "Human")
+                )
+            }
         }
     }
     return PreviewWrapper()
