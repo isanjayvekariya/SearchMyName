@@ -135,7 +135,6 @@ final class URLSessionHTTPClientTests: XCTestCase {
     }
     
     func testFetch_WithEmptyData() async throws {
-        
         let emptyData = Data()
         session.data = emptyData
         session.response = HTTPURLResponse(
