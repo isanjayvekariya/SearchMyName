@@ -30,6 +30,7 @@ final class FilterViewUITests: XCTestCase {
         XCTAssertTrue(filterButton.waitForExistence(timeout: 5))
         filterButton.tap()
         
+        // Select status picker
         XCTAssertTrue(statusPicker.waitForExistence(timeout: 5))
         statusPicker.tap()
         
@@ -38,7 +39,7 @@ final class FilterViewUITests: XCTestCase {
         XCTAssertTrue(aliveButton.waitForExistence(timeout: 5))
         aliveButton.tap()
         
-        // Select species
+        // Select species picker
         XCTAssertTrue(speciesPicker.waitForExistence(timeout: 5))
         speciesPicker.tap()
         
@@ -57,7 +58,6 @@ final class FilterViewUITests: XCTestCase {
         applyFiltersButton.tap()
         
         // Verify we're back to the main view
-        let searchField = app.textFields["search-field"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
     }
     
@@ -86,7 +86,6 @@ final class FilterViewUITests: XCTestCase {
         cancelButton.tap()
         
         // Verify we're back to the main view
-        let searchField = app.textFields["search-field"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
     }
 }
@@ -118,5 +117,9 @@ extension FilterViewUITests {
     
     var cancelButton: XCUIElement {
         app.navigationBars["Filters"].buttons["cancel-button"]
+    }
+    
+    var searchField: XCUIElement {
+        app.textFields["search-field"]
     }
 }
