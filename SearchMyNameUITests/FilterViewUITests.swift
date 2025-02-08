@@ -68,7 +68,6 @@ final class FilterViewUITests: XCTestCase {
         XCTAssertTrue(resetFiltersButton.waitForExistence(timeout: 5))
         resetFiltersButton.tap()
         
-        // Then
         XCTAssertTrue(statusPicker.waitForExistence(timeout: 5))
         XCTAssertTrue(speciesPicker.waitForExistence(timeout: 5))
         XCTAssertTrue(typeField.waitForExistence(timeout: 5))
@@ -86,7 +85,7 @@ final class FilterViewUITests: XCTestCase {
         XCTAssertTrue(cancelButton.waitForExistence(timeout: 5))
         cancelButton.tap()
         
-        // Then - Verify we're back to the main view
+        // Verify we're back to the main view
         let searchField = app.textFields["search-field"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
     }
