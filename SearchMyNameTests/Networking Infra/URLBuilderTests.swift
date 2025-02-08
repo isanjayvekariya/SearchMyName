@@ -9,7 +9,7 @@ import XCTest
 @testable import SearchMyName
 
 final class URLBuilderTests: XCTestCase {
-    var sut: URLBuilder!
+    var sut: URLBuilding!
     
     override func setUp() {
         super.setUp()

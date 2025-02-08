@@ -12,13 +12,13 @@ protocol CharacterServiceProviding {
 }
 
 final class CharacterServiceProvider: CharacterServiceProviding {
-    private let httpClient: URLSessionHTTPClient
-    private let urlBuilder: URLBuilderProtocol
+    private let httpClient: HTTPClient
+    private let urlBuilder: URLBuilding
     private let config: APIConfig
     
     init(
-        httpClient: URLSessionHTTPClient = URLSessionHTTPClient(),
-        urlBuilder: URLBuilderProtocol = URLBuilder(),
+        httpClient: HTTPClient = URLSessionHTTPClient(),
+        urlBuilder: URLBuilding = URLBuilder(),
         config: APIConfig = .production
     ) {
         self.httpClient = httpClient

@@ -9,7 +9,7 @@ import XCTest
 @testable import SearchMyName
 
 final class CharacterServiceTests: XCTestCase {
-    var sut: CharacterServiceProvider!
+    var sut: CharacterServiceProviding!
     var mockHTTPClient: MockHTTPClient!
     var mockURLBuilder: MockURLBuilder!
     

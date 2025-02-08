@@ -8,7 +8,7 @@
 import Foundation
 @testable import SearchMyName
 
-final class MockURLSession: URLSessionProtocol {
+final class MockURLSession: URLSessionDataTasking {
     var data: Data?
     var response: URLResponse?
     var error: Error?

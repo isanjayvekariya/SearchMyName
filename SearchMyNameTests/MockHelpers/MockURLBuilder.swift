@@ -8,7 +8,7 @@
 import Foundation
 @testable import SearchMyName
 
-final class MockURLBuilder: URLBuilderProtocol {
+final class MockURLBuilder: URLBuilding {
     var mockURL: URL?
     var capturedQueryItems: [URLQueryItem]?
     var shouldFail = false

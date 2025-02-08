@@ -7,11 +7,11 @@
 
 import Foundation
 
-protocol URLBuilderProtocol {
+protocol URLBuilding {
     func buildURL(baseURL: String, path: String, queryItems: [URLQueryItem]) throws -> URL
 }
 
-final class URLBuilder: URLBuilderProtocol {
+final class URLBuilder: URLBuilding {
     func buildURL(baseURL: String, path: String, queryItems: [URLQueryItem]) throws -> URL {
         guard let _ = URL(string: baseURL) else {
             throw NetworkError.invalidURL

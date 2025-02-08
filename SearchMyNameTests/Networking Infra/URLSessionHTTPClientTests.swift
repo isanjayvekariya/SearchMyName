@@ -9,7 +9,7 @@ import XCTest
 @testable import SearchMyName
 
 final class URLSessionHTTPClientTests: XCTestCase {
-    var sut: URLSessionHTTPClient!
+    var sut: HTTPClient!
     var session: MockURLSession!
     
     override func setUp() {
@@ -27,12 +27,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
     func testFetch_WithSuccessfulResponse_ReturnsData() async throws {
         let expectedData = "Test Data".data(using: .utf8)!
         session.data = expectedData
-        session.response = HTTPURLResponse(
-            url: URL(string: "https://test.com")!,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: nil
-        )
+        session.response = makeHTTPURLResponse(statusCode: 200)
         
         let resultData = try await sut.fetch(url: URL(string: "https://test.com")!)
         
@@ -41,12 +36,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
     
     func testFetch_WithNon200StatusCode_ThrowsError() async {
         session.data = Data()
-        session.response = HTTPURLResponse(
-            url: URL(string: "https://test.com")!,
-            statusCode: 404,
-            httpVersion: nil,
-            headerFields: nil
-        )
+        session.response = makeHTTPURLResponse(statusCode: 404)
         
         do {
             _ = try await sut.fetch(url: URL(string: "https://test.com")!)
@@ -74,12 +64,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
     
     func testFetch_WithNonHTTPResponse_ThrowsError() async {
         session.data = Data()
-        session.response = URLResponse(
-            url: URL(string: "https://test.com")!,
-            mimeType: nil,
-            expectedContentLength: 0,
-            textEncodingName: nil
-        )
+        session.response = makeUTRLResponse(expectedContentLength: 0)
         
         do {
             _ = try await sut.fetch(url: URL(string: "https://test.com")!)
@@ -96,12 +81,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
         
         for statusCode in statusCodesToTest {
             session.data = Data()
-            session.response = HTTPURLResponse(
-                url: URL(string: "https://test.com")!,
-                statusCode: statusCode,
-                httpVersion: nil,
-                headerFields: nil
-            )
+            session.response = makeHTTPURLResponse(statusCode: statusCode)
             
             do {
                 _ = try await sut.fetch(url: URL(string: "https://test.com")!)
@@ -122,12 +102,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
     func testFetch_WithLargeData() async throws {
         let largeData = Data(repeating: 0, count: 1_000_000) // 1MB of data
         session.data = largeData
-        session.response = HTTPURLResponse(
-            url: URL(string: "https://test.com")!,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: nil
-        )
+        session.response = makeHTTPURLResponse(statusCode: 200)
         
         let resultData = try await sut.fetch(url: URL(string: "https://test.com")!)
         
@@ -137,15 +112,30 @@ final class URLSessionHTTPClientTests: XCTestCase {
     func testFetch_WithEmptyData() async throws {
         let emptyData = Data()
         session.data = emptyData
-        session.response = HTTPURLResponse(
-            url: URL(string: "https://test.com")!,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: nil
-        )
+        session.response = makeHTTPURLResponse(statusCode: 200)
         
         let resultData = try await sut.fetch(url: URL(string: "https://test.com")!)
         
         XCTAssertEqual(resultData.count, 0)
+    }
+}
+
+private extension URLSessionHTTPClientTests {
+    func makeHTTPURLResponse(url: URL = URL(string: "https://test.com")!, statusCode: Int, httpVersion: String? = nil, headerFields: [String : String]? = nil) -> HTTPURLResponse? {
+        HTTPURLResponse(
+            url: url,
+            statusCode: statusCode,
+            httpVersion: httpVersion,
+            headerFields: headerFields
+        )
+    }
+    
+    func makeUTRLResponse(url: URL = URL(string: "https://test.com")!, mimeType: String? = nil, expectedContentLength: Int, textEncodingName: String? = nil) -> URLResponse {
+        URLResponse(
+            url: url,
+            mimeType: mimeType,
+            expectedContentLength: expectedContentLength,
+            textEncodingName: textEncodingName
+        )
     }
 }

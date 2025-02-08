@@ -11,20 +11,20 @@ protocol HTTPClient {
     func fetch(url: URL) async throws -> Data
 }
 
-protocol URLSessionProtocol {
+protocol URLSessionDataTasking {
     func data(from url: URL) async throws -> (Data, URLResponse)
 }
 
-extension URLSession: URLSessionProtocol {
+extension URLSession: URLSessionDataTasking {
     func data(from url: URL) async throws -> (Data, URLResponse) {
         try await data(from: url, delegate: nil)
     }
 }
 
 class URLSessionHTTPClient: HTTPClient {
-    private let session: URLSessionProtocol
+    private let session: URLSessionDataTasking
     
-    init(session: URLSessionProtocol = URLSession.shared) {
+    init(session: URLSessionDataTasking = URLSession.shared) {
         self.session = session
     }
     
