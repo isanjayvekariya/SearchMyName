@@ -8,17 +8,14 @@
 import XCTest
 
 final class SearchMyNameUITests: XCTestCase {
-    var app: XCUIApplication!
     
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
         app.launch()
     }
     
-    func testSearchFlow() throws {
-        let searchField = app.textFields["search-field"]
-        
+    // Validates able to search and loads a result into a list
+    func testSearchCharacterFlow() throws {
         // Wait for the search field to appear
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
         
@@ -34,14 +31,8 @@ final class SearchMyNameUITests: XCTestCase {
         XCTAssertEqual(result, .completed)
     }
     
-    func testFilterButtonExists() throws {
-        // Test for filter button existence
-        let filterButton = app.buttons["filter-button"]
-        XCTAssertTrue(filterButton.waitForExistence(timeout: 5))
-    }
-    
+    // Validates tapping on character image Nvigates to details
     func testDetailViewNavigation() throws {
-        let searchField = app.textFields["search-field"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
         
         searchField.tap()
@@ -55,12 +46,12 @@ final class SearchMyNameUITests: XCTestCase {
         // Tap on the image to navigate to details
         firstCharImage.tap()
         
-        // Then - verify we're on the detail view
+        // Verify we're on the detail view
         XCTAssertTrue(charDetailView.waitForExistence(timeout: 5))
     }
 }
 
-extension SearchMyNameUITests {
+private extension SearchMyNameUITests {
     var scrollView: XCUIElementQuery {
         app.scrollViews
     }

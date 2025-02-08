@@ -8,24 +8,23 @@
 import XCTest
 
 final class FilterViewUITests: XCTestCase {
-    var app: XCUIApplication!
     
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
         app.launch()
     }
     
+    // Validates tapping filter button Navigates to FilterView
     func testFilterViewNavigation() throws {
         XCTAssertTrue(filterButton.waitForExistence(timeout: 5))
         
         filterButton.tap()
         
-        XCTAssertTrue(statusPicker.waitForExistence(timeout: 5))
-        XCTAssertTrue(speciesPicker.waitForExistence(timeout: 5))
+        validatePickersExist()
         XCTAssertTrue(typeField.waitForExistence(timeout: 5))
     }
     
+    // Validates selected filters applies and Navigates to previous screen
     func testFilterSelection() throws {
         XCTAssertTrue(filterButton.waitForExistence(timeout: 5))
         filterButton.tap()
@@ -61,6 +60,7 @@ final class FilterViewUITests: XCTestCase {
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
     }
     
+    // Validates resetting filters does set to picker to original state
     func testFilterReset() throws {
         XCTAssertTrue(filterButton.waitForExistence(timeout: 5))
         filterButton.tap()
@@ -68,8 +68,7 @@ final class FilterViewUITests: XCTestCase {
         XCTAssertTrue(resetFiltersButton.waitForExistence(timeout: 5))
         resetFiltersButton.tap()
         
-        XCTAssertTrue(statusPicker.waitForExistence(timeout: 5))
-        XCTAssertTrue(speciesPicker.waitForExistence(timeout: 5))
+        validatePickersExist()
         XCTAssertTrue(typeField.waitForExistence(timeout: 5))
         
         // Verify the status text shows "Any"
@@ -77,10 +76,10 @@ final class FilterViewUITests: XCTestCase {
         XCTAssertTrue(anyText.exists)
     }
     
+    // Validates tapping cancel dismiss the FilterView and Navigates back
     func testFilterCancellation() throws {
         XCTAssertTrue(filterButton.waitForExistence(timeout: 5))
         filterButton.tap()
-        
         
         XCTAssertTrue(cancelButton.waitForExistence(timeout: 5))
         cancelButton.tap()
@@ -88,13 +87,14 @@ final class FilterViewUITests: XCTestCase {
         // Verify we're back to the main view
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
     }
+    
+    private func validatePickersExist() {
+        XCTAssertTrue(statusPicker.waitForExistence(timeout: 5))
+        XCTAssertTrue(speciesPicker.waitForExistence(timeout: 5))
+    }
 }
 
-extension FilterViewUITests {
-    var filterButton: XCUIElement {
-        app.buttons["Filter"]
-    }
-    
+private extension FilterViewUITests {
     var statusPicker: XCUIElement {
         app.collectionViews.buttons["status-picker"].staticTexts["Any"]
     }
@@ -118,8 +118,5 @@ extension FilterViewUITests {
     var cancelButton: XCUIElement {
         app.navigationBars["Filters"].buttons["cancel-button"]
     }
-    
-    var searchField: XCUIElement {
-        app.textFields["search-field"]
-    }
 }
+
