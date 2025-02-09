@@ -57,10 +57,14 @@ private extension SearchMyNameUITests {
     }
     
     var firstCharImage: XCUIElement {
-        scrollView.otherElements.buttons.containing(.image, identifier:"character-cell-image-1").element
+        listScrollView.element(boundBy: 0)
     }
     
     var charDetailView: XCUIElement {
         scrollView["character-detail-view"]
+    }
+    
+    var listScrollView: XCUIElementQuery {
+        scrollView.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .button).matching(identifier: "character-list")
     }
 }

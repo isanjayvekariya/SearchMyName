@@ -27,6 +27,7 @@ struct CharacterSearchHomeView: View {
                             ErrorView(message: errorMessage)
                         } else {
                             CharacterListView(characters: viewModel.characters)
+                                .accessibilityIdentifier("character-list")
                         }
                     }
                 }

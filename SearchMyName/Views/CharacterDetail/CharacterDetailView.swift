@@ -10,26 +10,23 @@ import SwiftUI
 struct CharacterDetailView: View {
     let character: Character
     @State private var isSharePresented: Bool = false
-    @State private var imageToShare: UIImage?
     @State private var isShowingShareSheet: Bool = false
+    
+    @StateObject private var imageLoader = ImageLoader()
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                AsyncImage(url: URL(string: character.image)) { image in
-                    image
+                
+                if let uiImage = imageLoader.image {
+                    Image(uiImage: uiImage)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .onAppear {
-                            if let uiImage = image.asUIImage() {
-                                imageToShare = uiImage
-                            }
-                        }
-                } placeholder: {
+                        .frame(maxWidth: .infinity)
+                        .accessibilityIdentifier("detail-character-image")
+                } else {
                     ProgressView()
                 }
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier("detail-character-image")
                 
                 VStack(alignment: .leading, spacing: 12) {
                     detailRow(title: "Species", value: character.species)
@@ -58,18 +55,23 @@ struct CharacterDetailView: View {
             }
         }
         .sheet(isPresented: $isSharePresented) {
-            SharePreviewView(
-                character: character,
-                image: imageToShare,
-                isSharePresented: $isSharePresented,
-                onShare: {
-                    isSharePresented = false
-                    isShowingShareSheet = true
-                }
-            )
+            if let imageToShare = imageLoader.image {
+                SharePreviewView(
+                    character: character,
+                    image: imageToShare,
+                    isSharePresented: $isSharePresented,
+                    onShare: {
+                        isSharePresented = false
+                        isShowingShareSheet = true
+                    }
+                )
+            }
         }
         .sheet(isPresented: $isShowingShareSheet) {
             shareSheet
+        }
+        .task {
+            await imageLoader.loadImage(from: character.image)
         }
     }
     
@@ -83,7 +85,7 @@ struct CharacterDetailView: View {
         Created: \(character.formattedCreatedDate)
         """
         
-        return ShareView(activityItems: [imageToShare as Any, metadata].compactMap { $0 })
+        return ShareView(activityItems: [imageLoader.image as Any, metadata].compactMap { $0 })
     }
     
     private func detailRow(title: String, value: String) -> some View {

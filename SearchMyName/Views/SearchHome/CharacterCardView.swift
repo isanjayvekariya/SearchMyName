@@ -10,19 +10,21 @@ import SwiftUI
 struct CharacterCardView: View {
     let character: Character
     
+    @StateObject private var imageLoader = ImageLoader()
+    
     var body: some View {
         HStack(spacing: 16) {
             NavigationLink(destination: CharacterDetailView(character: character)) {
-                AsyncImage(url: URL(string: character.image)) { image in
-                    image
+                if let uiImage = imageLoader.image {
+                    Image(uiImage: uiImage)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                } placeholder: {
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .accessibilityIdentifier("character-cell-image-\(character.id)")
+                } else {
                     ProgressView()
                 }
-                .frame(width: 80, height: 80)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .accessibilityIdentifier("character-cell-image-\(character.id)")
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -36,6 +38,9 @@ struct CharacterCardView: View {
             Spacer()
         }
         .padding(.vertical, 8)
+        .task {
+            await imageLoader.loadImage(from: character.image)
+        }
     }
 }
 

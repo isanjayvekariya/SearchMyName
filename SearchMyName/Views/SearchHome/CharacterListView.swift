@@ -18,7 +18,6 @@ struct CharacterListView: View {
             Divider()
                 .padding(.horizontal)
         }
-        .accessibilityIdentifier("character-list")
     }
 }
 

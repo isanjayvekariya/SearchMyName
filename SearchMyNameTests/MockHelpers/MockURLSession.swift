@@ -12,8 +12,11 @@ final class MockURLSession: URLSessionDataTasking {
     var data: Data?
     var response: URLResponse?
     var error: Error?
+    private(set) var lastURL: URL?
     
     func data(from url: URL) async throws -> (Data, URLResponse) {
+        lastURL = url
+        
         if let error = error {
             throw error
         }
