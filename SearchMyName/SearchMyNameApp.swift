@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct SearchMyNameApp: App {
+    @Namespace private var namespace
+    
     var body: some Scene {
         WindowGroup {
-            CharacterSearchHomeView()
+            CharacterSearchHomeView(namespace: namespace)
         }
     }
 }

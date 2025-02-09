@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct SharePreviewView: View {
-    let character: Character
-    let image: UIImage?
+    let detail: CharacterDetail
     @Binding var isSharePresented: Bool
     let onShare: () -> Void
     
@@ -21,28 +20,8 @@ struct SharePreviewView: View {
                         .font(.headline)
                         .padding(.top)
                     
-                    if let image = image {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 12) {
-                        previewRow(icon: "person.fill", title: "Name", value: character.name)
-                        previewRow(icon: "allergens", title: "Species", value: character.species)
-                        previewRow(icon: "heart.fill", title: "Status", value: character.status)
-                        previewRow(icon: "globe.americas.fill", title: "Origin", value: character.origin.name)
-                        
-                        if !character.type.isEmpty {
-                            previewRow(icon: "tag.fill", title: "Type", value: character.type)
-                        }
-                    }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal)
+                    previewImage()
+                    previewDetails()
                     
                     ShareOptionsView(onShare: onShare)
                         .padding()
@@ -58,8 +37,35 @@ struct SharePreviewView: View {
             }
         }
     }
+}
+
+private extension SharePreviewView {
+    func previewImage() -> some View {
+        detail.image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
     
-    private func previewRow(icon: String, title: String, value: String) -> some View {
+    func previewDetails() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            previewRow(icon: "person.fill", title: "Name", value: detail.character.name)
+            previewRow(icon: "allergens", title: "Species", value: detail.character.species)
+            previewRow(icon: "heart.fill", title: "Status", value: detail.character.status)
+            previewRow(icon: "globe.americas.fill", title: "Origin", value: detail.character.origin.name)
+            
+            if !detail.character.type.isEmpty {
+                previewRow(icon: "tag.fill", title: "Type", value: detail.character.type)
+            }
+        }
+        .padding()
+        .background(Color(UIColor.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal)
+    }
+    
+    func previewRow(icon: String, title: String, value: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .foregroundColor(.accentColor)
@@ -74,4 +80,15 @@ struct SharePreviewView: View {
             }
         }
     }
+}
+
+#Preview {
+    struct PreviewWrapper: View {
+        let character = Character(id: 1, name: "Sanjay", species: "Human", image: "", status: "Alive", type: "", created: "", origin: .init(name: "Earth"))
+        
+        var body: some View {
+            SharePreviewView(detail: .init(image: .init(systemName: "human.fill"), character: character), isSharePresented: .constant(true), onShare: {})
+        }
+    }
+    return PreviewWrapper()
 }

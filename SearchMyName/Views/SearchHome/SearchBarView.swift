@@ -16,37 +16,8 @@ struct SearchBarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                TextField("Search characters...", text: $searchText)
-                    .font(.system(size: 18))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(12)
-                    .onChange(of: searchText) {
-                        onSearchTextChanged()
-                    }
-                    .autocorrectionDisabled()
-                    .accessibilityIdentifier("search-field")
-                
-                Button(action: {
-                    isFilterSheetPresented = true
-                }) {
-                    Image(systemName: "line.3.horizontal.decrease.circle")
-                        .font(.title2)
-                        .foregroundColor(.accentColor)
-                        .overlay(
-                            Group {
-                                if currentFilters.hasActiveFilters {
-                                    Circle()
-                                        .fill(.red)
-                                        .frame(width: 8, height: 8)
-                                        .offset(x: 10, y: -10)
-                                        .accessibilityIdentifier("FilterIndicator")
-                                }
-                            }
-                        )
-                }
-                .accessibilityIdentifier("filter-button")
+                searchField()
+                filterButton()
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -54,6 +25,44 @@ struct SearchBarView: View {
             Divider()
         }
         .background(Color(UIColor.systemBackground))
+    }
+}
+
+private extension SearchBarView {
+    func searchField() -> some View {
+        TextField("Search characters...", text: $searchText)
+            .font(.system(size: 18))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(12)
+            .onChange(of: searchText) {
+                onSearchTextChanged()
+            }
+            .autocorrectionDisabled()
+            .accessibilityIdentifier("search-field")
+    }
+    
+    func filterButton() -> some View {
+        Button(action: {
+            isFilterSheetPresented = true
+        }) {
+            Image(systemName: "line.3.horizontal.decrease.circle")
+                .font(.title2)
+                .foregroundColor(.accentColor)
+                .overlay(
+                    Group {
+                        if currentFilters.hasActiveFilters {
+                            Circle()
+                                .fill(.red)
+                                .frame(width: 8, height: 8)
+                                .offset(x: 10, y: -10)
+                                .accessibilityIdentifier("FilterIndicator")
+                        }
+                    }
+                )
+        }
+        .accessibilityIdentifier("filter-button")
     }
 }
 
