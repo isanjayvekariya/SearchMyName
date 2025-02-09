@@ -14,19 +14,24 @@ struct ShareOptionsView: View {
         VStack(spacing: 16) {
             Text("Share Options")
                 .font(.headline)
-            
-            HStack(spacing: 20) {
-                shareButton(icon: "square.and.arrow.up", title: "Share", action: onShare)
-                shareButton(icon: "square.and.arrow.down", title: "Save", action: onShare)
-                shareButton(icon: "doc.on.doc", title: "Copy", action: onShare)
-            }
+            shareOptionGroup()
         }
         .padding()
         .background(Color(UIColor.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+}
+
+private extension ShareOptionsView {
+    func shareOptionGroup() -> HStack<TupleView<(some View, some View, some View)>> {
+        HStack(spacing: 20) {
+            shareButton(icon: "square.and.arrow.up", title: "Share", action: onShare)
+            shareButton(icon: "square.and.arrow.down", title: "Save", action: onShare)
+            shareButton(icon: "doc.on.doc", title: "Copy", action: onShare)
+        }
+    }
     
-    private func shareButton(icon: String, title: String, action: @escaping () -> Void) -> some View {
+    func shareButton(icon: String, title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack(spacing: 8) {
                 Image(systemName: icon)
@@ -40,4 +45,9 @@ struct ShareOptionsView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
+}
+
+
+#Preview {
+    ShareOptionsView(onShare: {})
 }

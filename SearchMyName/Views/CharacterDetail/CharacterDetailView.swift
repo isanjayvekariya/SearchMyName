@@ -7,58 +7,37 @@
 
 import SwiftUI
 
-struct CharacterDetailView: View {
+struct CharacterDetail {
+    let image: Image
     let character: Character
+}
+
+struct CharacterDetailView: View {
+    let detail: CharacterDetail
+    let namespace: Namespace.ID
+    let onDismiss: () -> Void
+    
     @State private var isSharePresented: Bool = false
     @State private var isShowingShareSheet: Bool = false
     
     @StateObject private var imageLoader = ImageLoader()
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                
-                if let uiImage = imageLoader.image {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .accessibilityIdentifier("detail-character-image")
-                } else {
-                    ProgressView()
-                }
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    detailRow(title: "Species", value: character.species)
-                    detailRow(title: "Status", value: character.status)
-                    detailRow(title: "Origin", value: character.origin.name)
-                    
-                    if !character.type.isEmpty {
-                        detailRow(title: "Type", value: character.type)
+        Color(UIColor.systemBackground)
+            .ignoresSafeArea()
+            .overlay {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        headerView()
+                        characterImage()
+                        characterDetails()
                     }
-                    
-                    detailRow(title: "Created", value: character.formattedCreatedDate)
-                }
-                .padding()
-            }
-        }
-        .navigationTitle(character.name)
-        .navigationBarTitleDisplayMode(.large)
-        .accessibilityIdentifier("character-detail-view")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    isSharePresented = true
-                }) {
-                    Image(systemName: "square.and.arrow.up")
                 }
             }
-        }
-        .sheet(isPresented: $isSharePresented) {
-            if let imageToShare = imageLoader.image {
+            .accessibilityIdentifier("character-detail-view")
+            .sheet(isPresented: $isSharePresented) {
                 SharePreviewView(
-                    character: character,
-                    image: imageToShare,
+                    detail: detail,
                     isSharePresented: $isSharePresented,
                     onShare: {
                         isSharePresented = false
@@ -66,29 +45,81 @@ struct CharacterDetailView: View {
                     }
                 )
             }
-        }
-        .sheet(isPresented: $isShowingShareSheet) {
-            shareSheet
-        }
-        .task {
-            await imageLoader.loadImage(from: character.image)
+            .sheet(isPresented: $isShowingShareSheet) {
+                shareSheet
+            }
+    }
+}
+
+private extension CharacterDetailView {
+    // Title, Share Icon and Close button
+    func headerView() -> some View {
+        HStack {
+            titleText()
+            
+            Spacer()
+            
+            HStack {
+                shareIcon()
+                closeButton()
+            }
+            .padding(.trailing)
         }
     }
     
-    private var shareSheet: some View {
-        let metadata = """
-        Character: \(character.name)
-        Species: \(character.species)
-        Status: \(character.status)
-        Origin: \(character.origin.name)
-        \(character.type.isEmpty ? "" : "Type: \(character.type)\n")
-        Created: \(character.formattedCreatedDate)
-        """
-        
-        return ShareView(activityItems: [imageLoader.image as Any, metadata].compactMap { $0 })
+    func titleText() -> some View {
+        Text(detail.character.name)
+            .font(.title2)
+            .bold()
+            .padding(.leading)
+            .accessibilityIdentifier("character-detail-title")
     }
     
-    private func detailRow(title: String, value: String) -> some View {
+    func shareIcon() -> some View {
+        Button(action: {
+            isSharePresented = true
+        }) {
+            Image(systemName: "square.and.arrow.up")
+                .font(.title2)
+        }
+    }
+    
+    func closeButton() -> some View {
+        Button(action: {
+            onDismiss()
+        }) {
+            Image(systemName: "xmark.circle.fill")
+                .font(.title)
+                .foregroundColor(.gray)
+        }
+        .accessibilityIdentifier("close-button")
+    }
+    
+    func characterImage() -> some View {
+        detail.image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .matchedGeometryEffect(id: "image-\(detail.character.id)", in: namespace, anchor: .center)
+            .accessibilityIdentifier("character-detail-image")
+    }
+    
+    func characterDetails() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            detailRow(title: "Species", value: detail.character.species)
+            detailRow(title: "Status", value: detail.character.status)
+            detailRow(title: "Origin", value: detail.character.origin.name)
+            
+            if !detail.character.type.isEmpty {
+                detailRow(title: "Type", value: detail.character.type)
+            }
+            
+            detailRow(title: "Created", value: detail.character.formattedCreatedDate)
+        }
+        .padding()
+    }
+    
+    func detailRow(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.subheadline)
@@ -97,4 +128,29 @@ struct CharacterDetailView: View {
                 .font(.body)
         }
     }
+    
+    var shareSheet: some View {
+        let metadata = """
+        Character: \(detail.character.name)
+        Species: \(detail.character.species)
+        Status: \(detail.character.status)
+        Origin: \(detail.character.origin.name)
+        \(detail.character.type.isEmpty ? "" : "Type: \(detail.character.type)\n")
+        Created: \(detail.character.formattedCreatedDate)
+        """
+        
+        return ShareView(activityItems: [detail.image as Any, metadata].compactMap { $0 })
+    }
+}
+
+#Preview {
+    struct PreviewWrapper: View {
+        @Namespace private var namespace
+        let character = Character(id: 1, name: "Sanjay Sanjay Sanjay", species: "Human", image: "", status: "Alive", type: "", created: "", origin: .init(name: "Earth"))
+        
+        var body: some View {
+            CharacterDetailView(detail: .init(image: .init(""), character: character), namespace: namespace, onDismiss: {})
+        }
+    }
+    return PreviewWrapper()
 }

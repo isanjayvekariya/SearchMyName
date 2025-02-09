@@ -9,21 +9,44 @@ import SwiftUI
 
 struct CharacterListView: View {
     let characters: [Character]
+    let namespace: Namespace.ID
+    
+    @Binding var selectedCharacter: CharacterDetail?
+    @Binding var isShowingDetail: Bool
+    
+    let onTap: () -> Void
     
     var body: some View {
         ForEach(characters) { character in
-            CharacterCardView(character: character)
-                .padding(.horizontal)
-                .accessibilityIdentifier("character-cell-\(character.id)")
+            characterCardView(character)
             Divider()
                 .padding(.horizontal)
         }
+        .accessibilityIdentifier("character-list")
+    }
+    
+    private func characterCardView(_ character: Character) -> some View {
+        CharacterCardView(
+            character: character,
+            namespace: namespace,
+            selectedCharacter: $selectedCharacter,
+            onTap: onTap
+        )
+        .padding(.horizontal)
+        .accessibilityIdentifier("character-list-\(character.id)")
     }
 }
 
 #Preview {
-    CharacterListView(characters: [
-        .init(id: 1, name: "name1", species: "human", image: "", status: "", type: "", created: "", origin: .init(name: "")),
-        .init(id: 2, name: "name2", species: "human", image: "", status: "", type: "", created: "", origin: .init(name: ""))
-    ])
+    struct PreviewWrapper: View {
+        @Namespace private var namespace
+        let character = Character(id: 1, name: "Sanjay", species: "Human", image: "", status: "Alive", type: "", created: "", origin: .init(name: "Earth"))
+        
+        var body: some View {
+            CharacterListView(characters: [
+                character, character
+            ], namespace: namespace, selectedCharacter: .constant(.init(image: .init(""), character: character)), isShowingDetail: .constant(false), onTap: {})
+        }
+    }
+    return PreviewWrapper()
 }

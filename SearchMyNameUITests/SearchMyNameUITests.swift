@@ -22,9 +22,8 @@ final class SearchMyNameUITests: XCTestCase {
         searchField.tap()
         searchField.typeText("Rick")
         
-        // Wait for results to load
+        // Wait for results to load in the list
         let predicate = NSPredicate(format: "exists == true")
-        let characterList = app.otherElements["character-list"]
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: characterList)
         
         let result = XCTWaiter().wait(for: [expectation], timeout: 10)
@@ -42,9 +41,9 @@ final class SearchMyNameUITests: XCTestCase {
         sleep(2) // Wait for network request
         
         // Verify the first character image exists
-        XCTAssertTrue(firstCharImage.waitForExistence(timeout: 5))
+        XCTAssertTrue(firstCharacterImage.waitForExistence(timeout: 5))
         // Tap on the image to navigate to details
-        firstCharImage.tap()
+        firstCharacterImage.tap()
         
         // Verify we're on the detail view
         XCTAssertTrue(charDetailView.waitForExistence(timeout: 5))
@@ -52,19 +51,15 @@ final class SearchMyNameUITests: XCTestCase {
 }
 
 private extension SearchMyNameUITests {
-    var scrollView: XCUIElementQuery {
-        app.scrollViews
+    var characterList: XCUIElement {
+        app.otherElements["character-list"]
     }
     
-    var firstCharImage: XCUIElement {
-        listScrollView.element(boundBy: 0)
+    var firstCharacterImage: XCUIElement {
+        app.images.firstMatch
     }
     
     var charDetailView: XCUIElement {
-        scrollView["character-detail-view"]
-    }
-    
-    var listScrollView: XCUIElementQuery {
-        scrollView.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .button).matching(identifier: "character-list")
+        app.scrollViews["character-detail-view"]
     }
 }
